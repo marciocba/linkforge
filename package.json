@@ -1,0 +1,20 @@
+{
+  "name": "linkforge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A simple URL shortener built with React and Express.",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,green \"npm run dev --workspace @linkforge/server\" \"npm run dev --workspace linkforge-client\"",
+    "build": "npm run build --workspace linkforge-client",
+    "start": "npm run start --workspace @linkforge/server",
+    "test": "node --test tests/api.test.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

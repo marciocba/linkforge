@@ -1,51 +1,52 @@
 # LinkForge
 
-LinkForge is a web application built with **React** for the frontend and **Express.js** for the backend.
+LinkForge is a URL shortener with a React interface and an Express API. A user submits a URL, receives a short link, and can view the links created by the service and their click counts.
 
-## Tech stack
+## Project layout
 
-- React — interactive user interface
-- Express.js — server and API
-- Node.js and npm — JavaScript runtime and package management
+```text
+client/   React app built with Vite
+server/   Express API and JSON-backed link storage
+tests/    Node.js API contract tests
+```
 
-## Getting started
+## Requirements and setup
 
-### Prerequisites
+Use Node.js 20 or newer with npm. From the repository root, install all workspace dependencies:
 
-- Node.js (LTS recommended)
-- npm
-
-### Install dependencies
-
-From the project root, install the dependencies:
-
-```bash
+```sh
 npm install
 ```
 
-If the frontend and backend have separate `package.json` files, install dependencies in each app directory as well.
+Start both the API and Vite development server from the root:
 
-### Run the application
-
-Start the development server using the script configured in `package.json`. For example:
-
-```bash
+```sh
 npm run dev
 ```
 
-If frontend and backend are started separately, run each app's development script from its directory. Check the relevant `package.json` files for the available scripts and required environment variables.
+To work on either app separately, run `npm run dev --workspace @linkforge/server` or `npm run dev --workspace linkforge-client` from the repository root. Build the frontend with `npm run build` or `npm run build --workspace linkforge-client`, both from the root. Run the backend in production mode with `npm start` from the root.
 
-## Project structure
+## API
 
-The frontend contains the React application, and the backend contains the Express.js server and API routes. Exact directory names depend on the project configuration.
+The API listens on port `3001` by default. The Vite development server proxies `/api` and `/r` requests to it.
 
-## Development
+- `GET /api/health` returns `{ "status": "ok" }`.
+- `GET /api/links` returns `{ "links": [...] }`.
+- `POST /api/links` accepts `{ "url": "https://example.com" }` and returns `201` with `{ "link": ... }`.
+- `GET /r/:code` redirects to the saved destination with HTTP `302` and increments its click count.
 
-1. Install the dependencies.
-2. Configure any environment variables required by the application.
-3. Start the frontend and backend development processes.
-4. Make changes in the corresponding app directories.
+Each link has `code`, `shortUrl`, `originalUrl`, `createdAt`, and `clicks` fields. Invalid URLs and unknown codes return client errors rather than creating or redirecting a link.
 
-## License
+## Tests
 
-No license has been specified yet.
+Run the API contract suite from the repository root:
+
+```sh
+npm test
+```
+
+Tests use Node's built-in test runner and start the Express app on an ephemeral local port. They isolate persisted data in a temporary directory; no external service is required.
+
+## Configuration
+
+The server supports `PORT` to choose its listening port, `BASE_URL` to override the short-link origin, and `DATA_FILE` to select the JSON storage file. Keep local configuration and generated data out of version control; never commit secrets.
